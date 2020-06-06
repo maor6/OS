@@ -1,8 +1,6 @@
 #include <pthread.h> 
 #include <semaphore.h> 
 #include <stdio.h> 
-#include <sched.h>
-
 
 #define N 5 
 #define THINKING 2 
@@ -57,8 +55,7 @@ void take_fork(int phnum)
 	sem_post(&mutex); 
 
 	// if unable to eat wait to be signalled 
-	sem_wait(&S[phnum]);
-	
+	sem_wait(&S[phnum]); 
 
 	sleep(1); 
 } 
@@ -76,8 +73,8 @@ void put_fork(int phnum)
 		phnum + 1, LEFT + 1, phnum + 1); 
 	printf("Philosopher %d is thinking\n", phnum + 1); 
 
-	test(LEFT); 
-	test(RIGHT); 
+	//test(LEFT); 
+	//test(RIGHT); 
 
 	sem_post(&mutex); 
 } 
@@ -91,60 +88,32 @@ void* philospher(void* num)
 
 		sleep(1); 
 
-		
-
 		take_fork(*i); 
 
 		sleep(0); 
 
-		put_fork(*i);
-		
-		 
+		put_fork(*i); 
 	} 
 } 
 
 int main() 
 { 
-	pthread_attr_t tattr;
-pthread_t tid;
-int ret;
-int newprio = 2;
-struct sched_param param;
-
-/* initialized with default attributes */
-ret = pthread_attr_init (&tattr);
-
-/* safe to get existing scheduling param */
-ret = pthread_attr_getschedparam (&tattr, &param);
-
-/* set the priority; others are unchanged */
-param.sched_priority = newprio;
-
-/* setting the new scheduling param */
-ret = pthread_attr_setschedparam (&tattr, &param);
-
-/* with new priority specified */
-//ret = pthread_create (&tid, &tattr, func, arg);
-
 
 	int i; 
 	pthread_t thread_id[N]; 
 
 	// initialize the semaphores 
-	sem_init(&mutex, 5, 5); 
+	sem_init(&mutex, 0, 1); 
 
 	for (i = 0; i < N; i++) 
 
-		sem_init(&S[i], 5, 5); 
+		sem_init(&S[i], 0, 0); 
 
 	for (i = 0; i < N; i++) { 
-		if (i == 1){
-			pthread_create (&thread_id[i], &tattr, philospher, &phil[i]);
-		}
-		else{
+
 		// create philosopher processes 
-		pthread_create(&thread_id[i], NULL,philospher, &phil[i]); 
-		}
+		pthread_create(&thread_id[i], NULL, 
+					philospher, &phil[i]); 
 
 		printf("Philosopher %d is thinking\n", i + 1); 
 	} 
@@ -153,3 +122,4 @@ ret = pthread_attr_setschedparam (&tattr, &param);
 
 		pthread_join(thread_id[i], NULL); 
 } 
+
